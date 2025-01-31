@@ -10,8 +10,21 @@ import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './swagger';
 import chat from './src/routes/chat'
+import certificate from './src/routes/certificate';
 import cors from "cors";
+import { rateLimit } from 'express-rate-limit'
 
+
+const limiter = rateLimit({
+  windowMs: 2 * 60 * 100, // 15 minutes
+  limit: 200, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+  message: "Love someone alone if you want to request again you should don't love someone alone",
+})
+
+app.use(limiter)
 
 // Middleware setup
 app.use(express.json());
@@ -29,6 +42,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes setup
 app.use('/api/auth', auth)
 app.use('/api/chat', chat)
+app.use('/api/certificate', certificate);
 
 
 // Start server
